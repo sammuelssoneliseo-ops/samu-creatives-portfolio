@@ -98,3 +98,12 @@ button { color: inherit; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 .software-glyph.capcut svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 5.2; stroke-linecap: round; stroke-linejoin: round; }
 .software-glyph.capcut.compact svg { width: 27px; height: 27px; }
+.about-profile { display: flex; align-items: center; gap: 19px; margin: 22px 0 29px; padding: 14px; border: 1px solid rgba(133,174,226,.14); border-radius: 18px; background: linear-gradient(135deg, rgba(28,57,93,.48), rgba(11,28,54,.36)); }
+.about-portrait { display: block; flex: 0 0 132px; width: 132px; aspect-ratio: 1; object-fit: cover; object-position: center 34%; border: 1px solid rgba(255,255,255,.2); border-radius: 14px; }
+.profile-details { min-width: 0; }
+.profile-details h3 { margin: 0 0 13px; color: #f1f6ff; font-size: 17px; line-height: 1.3; letter-spacing: -.04em; }
+.profile-details dl { display: grid; gap: 9px; margin: 0; }
+.profile-details dl div { display: grid; grid-template-columns: 52px minmax(0,1fr); align-items: start; gap: 7px; }
+.profile-details dt { padding-top: 2px; color: #8ca4c6; font-family: var(--mono); font-size: 8px; letter-spacing: .08em; }
+.profile-details dd { margin: 0; color: #c3d2e7; font-size: 10px; line-height: 1.55; }
+@media (max-width: 480px) { .about-profile { gap: 13px; padding: 11px; }.about-portrait { flex-basis: 100px; width: 100px; border-radius: 12px; }.profile-details h3 { font-size: 14px; margin-bottom: 10px; }.profile-details dl { gap: 7px; }.profile-details dl div { grid-template-columns: 43px minmax(0,1fr); gap: 5px; }.profile-details dt { font-size: 7px; }.profile-details dd { font-size: 9px; } }
