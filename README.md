@@ -1,6 +1,6 @@
 # Samu Creatives — Portfolio + Prisma CRUD Studio
 
-A responsive personal portfolio for **Samu Creatives**, built around a blue-and-orange visual system, glassmorphism panels, and dimensional app-style icons for Adobe creative tools and CapCut. The site presents Samu as a freelance video editor, filmmaker, graphic designer, and virtual assistant, with X / Twitter as the primary social channel.
+A responsive portfolio for **Samu Creatives**, built around a blue-and-orange visual system, glassmorphism panels, and dimensional app-style icons for Adobe creative tools and CapCut. It presents Samu as a freelance video editor, filmmaker, graphic designer, and virtual assistant, with X / Twitter as the primary social channel.
 
 The project also includes a small **Studio** workspace (`/studio`) that manages portfolio projects. The React interface calls an Express API, and the API uses **Prisma ORM** to create, retrieve, update, and delete records in a persistent SQLite database.
 
