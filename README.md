@@ -4,7 +4,7 @@ A responsive portfolio for **Samu Creatives**, built around a blue-and-orange vi
 
 The project also includes a small **Studio** workspace (`/studio`) that manages portfolio projects. The React interface calls an Express API, and the API uses **Prisma ORM** to create, retrieve, update, and delete records in a persistent SQLite database.
 
-> The included project records are starter/demo content. Replace them with real client or personal work before publishing the portfolio.
+> The four seeded video projects are the YouTube links provided by the portfolio owner. Manage them and add future work in the Studio workspace.
 
 ## Features
 
@@ -17,7 +17,7 @@ The project also includes a small **Studio** workspace (`/studio`) that manages 
 - Studio project records support optional, validated YouTube video URLs.
 - Input validation with Zod and helpful API error responses.
 - Persistent SQLite file stored at `server/prisma/dev.db` after setup.
-- Seed script that adds four editable sample projects and the four linked YouTube videos.
+- Seed script that adds the four linked YouTube videos as editable projects.
 - GitHub-ready repository structure and environment examples.
 
 ## Technology stack
@@ -118,7 +118,7 @@ Edit `client/.env` and replace `https://x.com/yourhandle` with your actual X / T
 npm run db:setup
 ```
 
-This runs the Prisma client generator, applies the checked-in migration, and inserts the sample projects. The seed script uses `upsert`, so rerunning it will not create duplicate copies of the four sample records.
+This runs the Prisma client generator, applies the checked-in migration, and inserts the four video projects. The seed script uses `upsert`, so rerunning it will not create duplicate copies.
 
 ### 4. Start the app
 
@@ -169,7 +169,7 @@ npm run start        # Run the Express server (after building the client)
 npm run db:setup     # Generate Prisma Client, migrate, and seed
 npm run db:generate  # Regenerate Prisma Client after schema changes
 npm run db:migrate   # Create/apply development migrations
-npm run db:seed      # Insert or update sample projects
+npm run db:seed      # Insert or update the seeded video projects
 npm run db:studio    # Open Prisma Studio to inspect records
 ```
 
@@ -195,7 +195,7 @@ Do **not** commit `.env` files, `node_modules`, the generated Prisma Client, or 
 - The Studio route is an educational/demo CRUD workspace and currently has **no authentication**. Do not expose it publicly as an unrestricted admin panel. Add authentication and authorization before deploying it for real client content.
 - Local SQLite is suitable for a classroom demonstration, portfolio prototype, and single-instance app. For hosting on platforms with ephemeral filesystems or multiple server instances, move to a managed persistent database (for example PostgreSQL) and update the Prisma datasource/adapter configuration.
 - Configure `CLIENT_URL` for your deployed frontend origin and set `DATABASE_URL` in the hosting provider's secret/environment settings.
-- Replace the sample projects, X profile URL, and sample contact email (`hello@samucreatives.com`) with your own real content before launch.
+- Replace or edit portfolio projects and update the X profile URL with your preferred account before launch.
 
 ## Learning outcomes demonstrated
 
