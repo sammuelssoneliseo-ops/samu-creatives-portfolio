@@ -11,10 +11,13 @@ The project also includes a small **Studio** workspace (`/studio`) that manages 
 - Responsive portfolio homepage with Work, Services, About, X / Twitter, and Contact sections.
 - Blue/orange visual palette, translucent glass panels, subtle motion, and CSS-built 3D-style Adobe / CapCut app tiles.
 - Portfolio project cards are read from the database rather than hard-coded in the UI.
+- YouTube projects show their video thumbnail and play in-place when selected.
+- Scroll-triggered reveal transitions respect reduced-motion preferences.
 - Studio dashboard at `/studio` with create, read, update, and delete actions.
+- Studio project records support optional, validated YouTube video URLs.
 - Input validation with Zod and helpful API error responses.
 - Persistent SQLite file stored at `server/prisma/dev.db` after setup.
-- Seed script that adds four editable sample projects.
+- Seed script that adds four editable sample projects and the four linked YouTube videos.
 - GitHub-ready repository structure and environment examples.
 
 ## Technology stack
@@ -47,7 +50,7 @@ samu-creatives/
 │   └── vite.config.js
 ├── server/
 │   ├── prisma/
-│   │   ├── migrations/          # Checked-in initial migration
+│   │   ├── migrations/          # Checked-in database migrations
 │   │   ├── schema.prisma        # Project model
 │   │   └── seed.ts              # Starter portfolio records
 │   ├── src/
@@ -150,11 +153,12 @@ The Vite development server proxies `/api` requests to the Express API on port `
   "description": "A short description of the creative concept and the work delivered.",
   "year": 2026,
   "coverTheme": "orange",
-  "featured": true
+  "featured": true,
+  "videoUrl": "https://youtu.be/Vwd8tN-ban0"
 }
 ```
 
-Supported `coverTheme` values: `blue`, `orange`, `violet`, `teal`, and `mono`.
+`videoUrl` is optional and accepts YouTube video links. YouTube projects display a thumbnail and load the privacy-enhanced embedded player when clicked. Supported `coverTheme` values: `blue`, `orange`, `violet`, `teal`, and `mono`.
 
 ## Useful commands
 

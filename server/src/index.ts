@@ -21,6 +21,7 @@ app.use(helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
       formAction: ["'self'"],
       frameAncestors: ["'self'"],
+      frameSrc: ["'self'", "https://www.youtube-nocookie.com"],
       imgSrc: ["'self'", "data:", "https:"],
       objectSrc: ["'none'"],
       scriptSrc: ["'self'"],

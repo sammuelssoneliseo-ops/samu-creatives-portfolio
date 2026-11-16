@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Route, Routes, useLocation } from "react-router-dom";
 import {
   ArrowDown, ArrowRight, ArrowUpRight, Aperture, Camera, Check,
   Clapperboard, Code2, Command, Film, Layers3, Menu, Palette, Pencil,
-  Plus, Send, Sparkles, Video, X, XCircle
+  Play, Plus, Send, Sparkles, Video, X, XCircle
 } from "lucide-react";
 import { projectsApi } from "./api.js";
 
@@ -16,6 +16,31 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+}
+
+function ScrollReveal({ as: Element = "div", className = "", delay = 0, children, style, ...props }) {
+  const elementRef = useRef(null);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) {
+      element.classList.add("is-visible");
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        element.classList.add("is-visible");
+        observer.unobserve(element);
+      }
+    }, { threshold: 0.12 });
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  return <Element {...props} ref={elementRef} className={`scroll-reveal ${className}`} style={{ "--reveal-delay": `${delay}ms`, ...style }}>{children}</Element>;
 }
 
 function BrandMark() {
@@ -89,39 +114,71 @@ function SectionEyebrow({ number, children }) {
   return <div className="section-eyebrow"><span>{number}</span><i />{children}</div>;
 }
 
+function getYouTubeVideoId(videoUrl) {
+  if (!videoUrl) return null;
+
+  try {
+    const url = new URL(videoUrl);
+    if (url.hostname === "youtu.be") return url.pathname.slice(1).split("/")[0] || null;
+    if (["youtube.com", "www.youtube.com", "m.youtube.com"].includes(url.hostname)) {
+      return url.searchParams.get("v") || url.pathname.match(/^\/(?:embed|shorts)\/([^/]+)/)?.[1] || null;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
 function ProjectArtwork({ project, index = 0 }) {
   const theme = project.coverTheme || ["orange", "blue", "violet", "teal"][index % 4];
+  const videoId = getYouTubeVideoId(project.videoUrl);
   return (
     <div className={`project-artwork theme-${theme}`}>
-      <div className="art-grid-lines" />
-      <div className="artwork-orb" />
-      <div className="artwork-frame">
-        <span className="artwork-overline">SAMU / CREATIVE WORK</span>
-        <strong>{project.title.split("—")[0].split("–")[0].trim()}</strong>
-        <span className="artwork-bottom">{String(project.year || 2026)} <i /> VISUAL STUDY</span>
-      </div>
-      <span className="artwork-index">0{index + 1}</span>
-      <span className="artwork-symbol">✳</span>
+      {videoId ? <img className="project-thumbnail" src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`} alt={`${project.title} video thumbnail`} loading="lazy" /> : <>
+        <div className="art-grid-lines" />
+        <div className="artwork-orb" />
+        <div className="artwork-frame">
+          <span className="artwork-overline">SAMU / CREATIVE WORK</span>
+          <strong>{project.title.split("—")[0].split("–")[0].trim()}</strong>
+          <span className="artwork-bottom">{String(project.year || 2026)} <i /> VISUAL STUDY</span>
+        </div>
+        <span className="artwork-index">0{index + 1}</span>
+        <span className="artwork-symbol">✳</span>
+      </>}
     </div>
   );
 }
 
 function ProjectCard({ project, index }) {
+  const [playing, setPlaying] = useState(false);
+  const videoId = getYouTubeVideoId(project.videoUrl);
   return (
-    <article className="project-card">
-      <ProjectArtwork project={project} index={index} />
+    <ScrollReveal as="article" className="project-card" delay={Math.min(index, 3) * 80}>
+      {videoId ? <div className="project-video">
+        {playing ? <iframe
+          src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0`}
+          title={project.title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerPolicy="strict-origin-when-cross-origin"
+          allowFullScreen
+        /> : <button type="button" className="project-video-poster" onClick={() => setPlaying(true)} aria-label={`Play ${project.title}`}>
+          <img src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`} alt="" loading="lazy" />
+          <span className="video-play-button"><Play size={26} fill="currentColor" /></span>
+        </button>}
+      </div> : <ProjectArtwork project={project} index={index} />}
       <div className="project-card-meta"><div><span className="project-category">{project.category}</span><h3>{project.title}</h3></div><span className="project-year">{project.year}</span></div>
       <p>{project.description}</p>
-    </article>
+    </ScrollReveal>
   );
 }
 
 function ProjectsSection({ projects, loading, error }) {
   return (
-    <section id="work" className="section work-section">
+    <ScrollReveal as="section" id="work" className="section work-section">
       <div className="section-heading-row"><div><SectionEyebrow number="01">SELECTED WORK</SectionEyebrow><h2>Made to <span className="text-gradient">make a mark.</span></h2></div><Link to="/studio" className="text-link">Manage projects <ArrowUpRight size={16} /></Link></div>
       {loading ? <div className="project-grid">{[1, 2, 3].map((item) => <div className="project-skeleton" key={item}><div /><span /><i /></div>)}</div> : error ? <div className="inline-state"><XCircle size={18} /> {error}</div> : projects.length ? <div className="project-grid">{projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} />)}</div> : <div className="empty-projects glass-panel"><Layers3 size={28} /><h3>Your next great project goes here.</h3><p>Add your first portfolio piece in the Studio workspace.</p><Link to="/studio" className="button button-orange">Open Studio <ArrowRight size={16} /></Link></div>}
-    </section>
+    </ScrollReveal>
   );
 }
 
@@ -134,36 +191,36 @@ const services = [
 
 function ServicesSection() {
   return (
-    <section className="section services-section" id="services">
+    <ScrollReveal as="section" className="section services-section" id="services">
       <div className="section-heading-row"><div><SectionEyebrow number="02">WHAT I DO</SectionEyebrow><h2>One creative partner.<br /><span className="text-gradient">A whole toolkit.</span></h2></div><p className="section-intro">From the first rough idea to the final upload, I help make the creative process feel clear, considered, and collaborative.</p></div>
-      <div className="services-grid">{services.map((service) => <article className="service-card glass-panel" key={service.id}><div className="service-card-top"><span className="service-icon">{service.icon}</span><span className="service-id">/{service.id}</span></div><h3>{service.title}</h3><p>{service.desc}</p><ArrowUpRight className="service-arrow" size={18} /></article>)}</div>
-    </section>
+      <div className="services-grid">{services.map((service, index) => <ScrollReveal as="article" className="service-card glass-panel" delay={index * 70} key={service.id}><div className="service-card-top"><span className="service-icon">{service.icon}</span><span className="service-id">/{service.id}</span></div><h3>{service.title}</h3><p>{service.desc}</p><ArrowUpRight className="service-arrow" size={18} /></ScrollReveal>)}</div>
+    </ScrollReveal>
   );
 }
 
 function AboutSection() {
   return (
-    <section className="section about-section" id="about">
+    <ScrollReveal as="section" className="section about-section" id="about">
       <div className="about-copy"><SectionEyebrow number="03">A LITTLE ABOUT ME</SectionEyebrow><div className="about-profile"><img className="about-portrait" src="/samu-portrait.jpg" alt="Portrait of Sammuelsson R. Eliseo" /><div className="profile-details"><h3>Sammuelsson R. Eliseo</h3><dl><div><dt>AGE</dt><dd>23 years old</dd></div><div><dt>DEGREE</dt><dd>Bachelor of Science in Information Technology</dd></div><div><dt>SCHOOL</dt><dd>Laguna State Polytechnic University - Siniloan Campus</dd></div></dl></div></div><h2>Creative by nature.<br /><span className="text-gradient">Intentional by design.</span></h2><p>I'm Samu — a freelance video editor, filmmaker, graphic designer, and virtual assistant. I move between visuals and the details behind them, bringing ideas to life while keeping the process organized.</p><p>I believe good creative work should do more than look good. It should communicate clearly, create a feeling, and give people something worth remembering.</p><a className="button button-glass" href={X_PROFILE_URL} target="_blank" rel="noreferrer"><span className="x-mark">𝕏</span> Follow my creative stream <ArrowUpRight size={15} /></a></div>
       <div className="toolkit-card glass-panel"><div className="toolkit-heading"><span className="micro-label">TOOLS OF THE TRADE</span><Sparkles size={18} /></div><h3>My creative stack<span className="brand-accent">.</span></h3><p>Different tools, one goal: make the idea work.</p><div className="software-grid">{software.map((app) => <div className="software-item" key={app.name}><SoftwareGlyph app={app} /><span>{app.name}</span><small>{app.note}</small></div>)}</div></div>
-    </section>
+    </ScrollReveal>
   );
 }
 
 function XStreamSection() {
   return (
-    <section className="section x-section">
+    <ScrollReveal as="section" className="section x-section">
       <div className="x-card glass-panel"><div className="x-card-orbit" /><div className="x-card-top"><span className="micro-label">THE OPEN TAB</span><span className="x-brand-large">𝕏</span></div><div className="x-card-content"><span className="x-kicker">THOUGHTS · PROCESS · WIP</span><h2>Follow the work<br />between the frames.</h2><p>My main social stream lives on X. Catch the behind-the-scenes, creative notes, works in progress, and things I'm learning along the way.</p><a className="button button-orange" href={X_PROFILE_URL} target="_blank" rel="noreferrer">Find me on X <ArrowUpRight size={16} /></a></div><div className="x-card-watermark">POST / CREATE / REPEAT</div></div>
-    </section>
+    </ScrollReveal>
   );
 }
 
 function ContactSection() {
   return (
-    <section className="section contact-section" id="contact">
+    <ScrollReveal as="section" className="section contact-section" id="contact">
       <div><SectionEyebrow number="04">HAVE A PROJECT IN MIND?</SectionEyebrow><h2>Let's make<br /><span className="text-gradient">something matter.</span></h2><p className="contact-sub">Have a story to tell, a brand to build, or a creative task to hand off? Let's start with a conversation.</p><a className="contact-email" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL} <ArrowUpRight size={18} /></a><span className="contact-note">Your contact details are set and ready to use.</span></div>
       <div className="contact-side glass-panel"><span className="contact-side-icon"><Send size={21} /></span><span className="micro-label">YOUR NEXT IDEA STARTS HERE</span><h3>Open for select collaborations.</h3><p>Tell me a little about what you're building and I'll be in touch.</p><a href={X_PROFILE_URL} target="_blank" rel="noreferrer" className="button button-glass">Connect on X <ArrowUpRight size={15} /></a><div className="contact-availability"><i /> OPEN TO PROJECTS <span>·</span> REMOTE / WORLDWIDE</div></div>
-    </section>
+    </ScrollReveal>
   );
 }
 
@@ -199,7 +256,7 @@ function PortfolioPage() {
   );
 }
 
-const emptyForm = { title: "", category: "VIDEO EDITING / FILMMAKING", description: "", year: new Date().getFullYear(), coverTheme: "blue", featured: false };
+const emptyForm = { title: "", category: "VIDEO EDITING / FILMMAKING", description: "", year: new Date().getFullYear(), coverTheme: "blue", featured: false, videoUrl: "" };
 
 function ProjectForm({ initial, onSave, onCancel, saving }) {
   const [form, setForm] = useState(initial || emptyForm);
@@ -216,6 +273,7 @@ function ProjectForm({ initial, onSave, onCancel, saving }) {
       <label>Project title<input required minLength="2" maxLength="90" value={form.title} onChange={(event) => update("title", event.target.value)} placeholder="e.g. The Afterglow Film" /></label>
       <label>Category<input required value={form.category} onChange={(event) => update("category", event.target.value)} placeholder="VIDEO EDITING / FILMMAKING" /></label>
       <label className="form-full">Description<textarea required minLength="10" maxLength="500" rows="4" value={form.description} onChange={(event) => update("description", event.target.value)} placeholder="What was the idea, approach, or outcome?" /></label>
+      <label className="form-full">YouTube video URL (optional)<input type="url" value={form.videoUrl || ""} onChange={(event) => update("videoUrl", event.target.value)} placeholder="https://youtu.be/..." /></label>
       <div className="form-two-col"><label>Year<input type="number" min="2000" max="2100" required value={form.year} onChange={(event) => update("year", event.target.value)} /></label><label>Cover color<select value={form.coverTheme} onChange={(event) => update("coverTheme", event.target.value)}><option value="blue">Electric blue</option><option value="orange">Samu orange</option><option value="violet">Violet</option><option value="teal">Teal</option><option value="mono">Monochrome</option></select></label></div>
       <label className="featured-toggle"><input type="checkbox" checked={form.featured} onChange={(event) => update("featured", event.target.checked)} /><span>Feature this project on the homepage</span></label>
       {formError && <div className="form-error">{formError}</div>}
